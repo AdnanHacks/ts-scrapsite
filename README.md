@@ -1,6 +1,6 @@
 # Birthday Scrapbook
 
-A collaborative digital scrapbook built a beautiful girl's birthday. Each contributor gets their own page with photos, a Spotify track, and a personal message.
+A collaborative digital scrapbook built for a beautiful girl's birthday. Each contributor gets their own page with photos, a Spotify track, and a personal message.
 
 ---
 
