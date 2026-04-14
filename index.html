@@ -37,7 +37,7 @@
   <!-- ============================================================
        SCRAPBOOK PAGES - DETERMINES ORDER OF PAGES
   ============================================================ -->
-  <script src="pages/page-1.js"></script>
+  <script src="pages/pageCollage.js"></script>
   <script src="pages/pageAdnan.js"></script>
   <!-- <script src="pages/page-4.js"></script> -->
   <!-- <script src="pages/page-5.js"></script> -->
@@ -698,6 +698,580 @@
     }
     .intro-nav { display: flex; justify-content: center; gap: 16px; }
 
+    /* ─── Photo Grid (layout: 'grid') ───────────────────────────── */
+    .photo-grid-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 600;
+      font-style: italic;
+      color: var(--rose);
+      letter-spacing: -0.01em;
+      text-align: center;
+      padding: clamp(28px, 4vw, 44px) 0 clamp(12px, 2vw, 20px);
+    }
+    .photo-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: clamp(14px, 2vw, 24px);
+      padding: 0 clamp(20px, 5vw, 60px) clamp(32px, 5vw, 56px);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .photo-grid-card {
+      background: #fff;
+      padding: 10px 10px 32px;
+      border-radius: 2px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.13), 0 1.5px 4px rgba(0,0,0,0.08);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+    .photo-grid-card:hover {
+      transform: scale(1.05) rotate(0deg) !important;
+      box-shadow: 0 10px 32px rgba(196,104,106,0.22), 0 3px 8px rgba(0,0,0,0.10);
+      z-index: 2;
+    }
+    .photo-grid-img {
+      display: block;
+      width: clamp(140px, 15vw, 175px);
+      height: clamp(140px, 15vw, 175px);
+      object-fit: cover;
+    }
+    [data-theme="dark"] .photo-grid-card { background: #2a2020; }
+
+    /* ─── Collage / Compilation Page ────────────────────────────── */
+    .collage-canvas {
+      position: relative;
+      padding: clamp(32px, 5vw, 56px) 0 clamp(40px, 6vw, 64px);
+      background-image:
+        radial-gradient(circle at top, rgba(248, 236, 236, 0.95), rgba(255, 255, 255, 0.98) 42%, rgba(255, 255, 255, 1) 70%),
+        linear-gradient(rgba(196,104,106,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196,104,106,0.07) 1px, transparent 1px),
+        linear-gradient(rgba(196,104,106,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196,104,106,0.03) 1px, transparent 1px);
+      background-size: auto, 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+    }
+    [data-theme="dark"] .collage-canvas {
+      background-image:
+        radial-gradient(circle at top, rgba(44, 26, 26, 0.96), rgba(20, 16, 16, 0.98) 42%, rgba(20, 16, 16, 1) 70%),
+        linear-gradient(rgba(196,104,106,0.13) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196,104,106,0.13) 1px, transparent 1px),
+        linear-gradient(rgba(196,104,106,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(196,104,106,0.05) 1px, transparent 1px);
+      background-size: auto, 80px 80px, 80px 80px, 20px 20px, 20px 20px;
+    }
+    .collage-banners,
+    .collage-corner-tapes,
+    .collage-confetti,
+    .collage-falling-confetti,
+    .collage-notes,
+    .collage-stickers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .collage-corner-tape {
+      position: absolute;
+      width: 112px;
+      height: 24px;
+      border-radius: 3px;
+      background: linear-gradient(180deg, rgba(255, 231, 164, 0.86), rgba(247, 206, 111, 0.72));
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.45);
+      opacity: 0.82;
+    }
+    .collage-corner-tape.lt { top: 18px; left: 18px; transform: rotate(-28deg); }
+    .collage-corner-tape.rt { top: 22px; right: 20px; transform: rotate(30deg); }
+    .collage-corner-tape.lb { bottom: 20px; left: 24px; transform: rotate(24deg); }
+    .collage-corner-tape.rb { bottom: 24px; right: 18px; transform: rotate(-26deg); }
+    .collage-banner {
+      position: absolute;
+      width: min(420px, 72vw);
+      opacity: 0.88;
+      filter: drop-shadow(0 8px 14px rgba(196, 104, 106, 0.14));
+      transform: rotate(var(--rot, 0deg));
+      transform-origin: center;
+      animation: banner-sway var(--dur, 8s) ease-in-out infinite;
+    }
+    .collage-banner-string {
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 1%, rgba(192, 176, 172, 0.75) 10%, rgba(192, 176, 172, 0.75) 90%, transparent 99%);
+    }
+    .collage-banner-flags {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 6px;
+      padding: 0 6px;
+    }
+    .collage-banner-flag {
+      width: 24px;
+      height: 36px;
+      padding-top: 8px;
+      clip-path: polygon(0 0, 100% 0, 100% 78%, 50% 100%, 0 78%);
+      text-align: center;
+      font-family: 'Jost', sans-serif;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: rgba(112, 60, 87, 0.92);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.88), transparent 35%),
+        linear-gradient(180deg, rgba(255, 229, 240, 0.98), rgba(255, 198, 225, 0.95));
+      border: 1px solid rgba(255, 167, 210, 0.62);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.82), 0 4px 10px rgba(196,104,106,0.12);
+    }
+    .collage-banner-flag.alt {
+      color: rgba(82, 56, 132, 0.96);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.88), transparent 35%),
+        linear-gradient(180deg, rgba(236, 223, 255, 0.98), rgba(207, 181, 255, 0.95));
+      border-color: rgba(176, 141, 255, 0.56);
+    }
+    .collage-banner-flag:nth-child(odd) { transform: rotate(-4deg); }
+    .collage-banner-flag:nth-child(even) { transform: rotate(4deg); }
+    .collage-sticker {
+      position: absolute;
+      transform: rotate(var(--rot, 0deg));
+      filter: drop-shadow(0 10px 14px rgba(196, 104, 106, 0.14)) drop-shadow(0 2px 3px rgba(255,255,255,0.28));
+      opacity: 0.95;
+      user-select: none;
+      animation: sticker-float var(--dur, 7.5s) ease-in-out infinite;
+    }
+    .collage-sticker-star,
+    .collage-sticker-heart,
+    .collage-confetti-piece.star,
+    .collage-falling-piece.star {
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .collage-sticker-star {
+      font-size: var(--size, 2rem);
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      background-image:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95) 0 12%, transparent 13%),
+        linear-gradient(135deg, #ffd7f6 0%, #ff8fd1 28%, #be66ff 62%, #8b55ff 100%);
+      text-shadow: 0 0 2px rgba(255,255,255,0.55), 0 0 12px rgba(190,102,255,0.28), 0 0 18px rgba(255,143,209,0.22);
+      animation: glitter-twinkle var(--sparkle, 4.2s) ease-in-out infinite;
+    }
+    .collage-sticker-star.alt {
+      background-image:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.95) 0 12%, transparent 13%),
+        linear-gradient(135deg, #ffe2f1 0%, #ff9dd4 32%, #ff74ba 68%, #ffc9ec 100%);
+      text-shadow: 0 0 2px rgba(255,255,255,0.5), 0 0 12px rgba(255,116,186,0.24), 0 0 18px rgba(255,201,236,0.2);
+    }
+    .collage-sticker-cake {
+      width: var(--size, 78px);
+      height: var(--size, 78px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.92), transparent 32%),
+        linear-gradient(145deg, rgba(255, 240, 246, 0.96), rgba(255, 223, 236, 0.94));
+      border: 1px solid rgba(255, 183, 214, 0.68);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 10px 22px rgba(196, 104, 106, 0.16), 0 0 0 5px rgba(255,255,255,0.52);
+    }
+    .collage-sticker-cake::before {
+      content: '🎂';
+      font-size: calc(var(--size, 78px) * 0.48);
+      filter: drop-shadow(0 2px 2px rgba(255,255,255,0.35));
+    }
+    .collage-sticker-heart {
+      font-size: var(--size, 2.4rem);
+      line-height: 1;
+      background-image:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.9) 0 12%, transparent 13%),
+        linear-gradient(135deg, #ffd2e7 0%, #ff8fc7 45%, #ff63ad 100%);
+      text-shadow: 0 0 3px rgba(255,255,255,0.48), 0 0 14px rgba(255,105,180,0.22);
+      animation: glitter-twinkle var(--sparkle, 4.8s) ease-in-out infinite;
+    }
+    .collage-sticker-text {
+      padding: 10px 16px 11px;
+      border-radius: 999px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: var(--size, 1.1rem);
+      font-style: italic;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      color: rgba(135, 67, 104, 0.92);
+      background:
+        radial-gradient(circle at 24% 24%, rgba(255,255,255,0.92), transparent 28%),
+        linear-gradient(145deg, rgba(255, 235, 244, 0.98), rgba(237, 210, 255, 0.96));
+      border: 1px solid rgba(233, 169, 223, 0.7);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.88), 0 8px 18px rgba(196,104,106,0.14), 0 0 0 4px rgba(255,255,255,0.36);
+      white-space: nowrap;
+    }
+    .collage-sticker-bow {
+      width: var(--size, 76px);
+      height: calc(var(--size, 76px) * 0.72);
+      position: relative;
+    }
+    .collage-sticker-bow::before,
+    .collage-sticker-bow::after {
+      content: '';
+      position: absolute;
+      top: 8%;
+      width: 44%;
+      height: 74%;
+      border-radius: 55% 45% 50% 50%;
+      background:
+        radial-gradient(circle at 35% 30%, rgba(255,255,255,0.82), transparent 34%),
+        linear-gradient(145deg, rgba(255, 198, 229, 0.98), rgba(230, 150, 255, 0.96));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.85);
+    }
+    .collage-sticker-bow::before { left: 0; transform: rotate(-12deg); }
+    .collage-sticker-bow::after { right: 0; transform: rotate(12deg); }
+    .collage-sticker-bow span {
+      position: absolute;
+      top: 24%;
+      left: 50%;
+      width: 24%;
+      height: 38%;
+      transform: translateX(-50%);
+      border-radius: 45%;
+      background: linear-gradient(180deg, rgba(255, 170, 212, 1), rgba(205, 120, 255, 0.96));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.82);
+    }
+    .collage-sticker-bow span::before,
+    .collage-sticker-bow span::after {
+      content: '';
+      position: absolute;
+      top: 84%;
+      width: 46%;
+      height: 72%;
+      background: linear-gradient(180deg, rgba(255, 170, 212, 0.98), rgba(205, 120, 255, 0.94));
+      clip-path: polygon(0 0, 100% 0, 80% 100%, 24% 76%);
+    }
+    .collage-sticker-bow span::before { left: -32%; transform: rotate(10deg); }
+    .collage-sticker-bow span::after { right: -32%; transform: scaleX(-1) rotate(10deg); }
+    .collage-note {
+      position: absolute;
+      max-width: 190px;
+      padding: 12px 14px 10px;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 28% 24%, rgba(255,255,255,0.9), transparent 30%),
+        linear-gradient(155deg, rgba(255, 248, 223, 0.96), rgba(255, 239, 199, 0.92));
+      border: 1px solid rgba(235, 197, 120, 0.55);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.86), 0 10px 22px rgba(173, 123, 72, 0.14), 0 0 0 4px rgba(255,255,255,0.36);
+      transform: rotate(var(--rot, 0deg));
+      animation: note-drift var(--dur, 9s) ease-in-out infinite;
+    }
+    .collage-note::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      width: 52px;
+      height: 16px;
+      transform: translateX(-50%) rotate(-3deg);
+      background: rgba(255, 220, 120, 0.72);
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .collage-note-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.08rem;
+      font-style: italic;
+      line-height: 1.35;
+      color: rgba(116, 64, 75, 0.9);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.45);
+    }
+    .collage-note-sign {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(155, 96, 112, 0.72);
+      font-family: 'Jost', sans-serif;
+    }
+    .collage-confetti-piece,
+    .collage-falling-piece {
+      position: absolute;
+      border-radius: 999px;
+    }
+    .collage-confetti-piece {
+      width: var(--w, 10px);
+      height: var(--h, 18px);
+      transform: rotate(var(--rot, 0deg));
+      opacity: 0.78;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.18);
+      animation: confetti-float var(--dur, 7s) ease-in-out infinite;
+    }
+    .collage-confetti-piece.dot {
+      width: var(--w, 12px);
+      height: var(--w, 12px);
+      border-radius: 50%;
+    }
+    .collage-confetti-piece.star {
+      width: auto;
+      height: auto;
+      background-image:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.92) 0 12%, transparent 13%),
+        linear-gradient(135deg, #ffd2ef 0%, #ff91ce 40%, #b96bff 100%);
+      font-size: var(--size, 1rem);
+      line-height: 1;
+      box-shadow: none;
+      animation: glitter-twinkle var(--sparkle, 4s) ease-in-out infinite;
+    }
+    .collage-falling-piece {
+      top: var(--top, 0%);
+      left: 0;
+      width: var(--w, 10px);
+      height: var(--h, 18px);
+      opacity: 0.82;
+      transform: rotate(var(--rot, 0deg));
+      animation: falling-confetti var(--dur, 11s) linear infinite;
+      animation-delay: var(--delay, 0s);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.16);
+    }
+    .collage-falling-piece.dot {
+      width: var(--w, 12px);
+      height: var(--w, 12px);
+      border-radius: 50%;
+    }
+    .collage-falling-piece.star {
+      width: auto;
+      height: auto;
+      background-image:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,0.92) 0 12%, transparent 13%),
+        linear-gradient(135deg, #ffd2ef 0%, #ff91ce 40%, #b96bff 100%);
+      font-size: var(--size, 1rem);
+      line-height: 1;
+      box-shadow: none;
+      animation: falling-confetti-star var(--dur, 11s) linear infinite;
+      animation-delay: var(--delay, 0s);
+    }
+    [data-theme="dark"] .collage-banner {
+      opacity: 0.72;
+      filter: drop-shadow(0 10px 16px rgba(0,0,0,0.26));
+    }
+    [data-theme="dark"] .collage-banner-string {
+      background: linear-gradient(90deg, transparent 1%, rgba(118, 93, 104, 0.75) 10%, rgba(118, 93, 104, 0.75) 90%, transparent 99%);
+    }
+    [data-theme="dark"] .collage-banner-flag {
+      color: rgba(93, 45, 69, 0.98);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.18), transparent 35%),
+        linear-gradient(180deg, rgba(112, 73, 92, 0.98), rgba(149, 80, 121, 0.94));
+      border-color: rgba(210, 132, 175, 0.34);
+    }
+    [data-theme="dark"] .collage-banner-flag.alt {
+      color: rgba(53, 31, 91, 0.98);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.16), transparent 35%),
+        linear-gradient(180deg, rgba(95, 79, 142, 0.98), rgba(132, 96, 181, 0.94));
+      border-color: rgba(162, 134, 237, 0.32);
+    }
+    [data-theme="dark"] .collage-sticker { filter: drop-shadow(0 10px 16px rgba(0,0,0,0.32)); opacity: 0.88; }
+    [data-theme="dark"] .collage-sticker-cake {
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.14), transparent 32%),
+        linear-gradient(145deg, rgba(73, 39, 58, 0.95), rgba(53, 30, 43, 0.96));
+      border-color: rgba(223, 133, 185, 0.3);
+    }
+    [data-theme="dark"] .collage-sticker-text {
+      color: rgba(246, 220, 241, 0.92);
+      background:
+        radial-gradient(circle at 24% 24%, rgba(255,255,255,0.14), transparent 28%),
+        linear-gradient(145deg, rgba(93, 55, 82, 0.98), rgba(107, 73, 135, 0.96));
+      border-color: rgba(213, 150, 224, 0.34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 8px 18px rgba(0,0,0,0.18), 0 0 0 4px rgba(255,255,255,0.04);
+    }
+    [data-theme="dark"] .collage-note {
+      background:
+        radial-gradient(circle at 28% 24%, rgba(255,255,255,0.12), transparent 30%),
+        linear-gradient(155deg, rgba(72, 52, 36, 0.96), rgba(93, 63, 46, 0.92));
+      border-color: rgba(185, 146, 87, 0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 10px 22px rgba(0,0,0,0.22), 0 0 0 4px rgba(255,255,255,0.04);
+    }
+    [data-theme="dark"] .collage-note-text { color: rgba(246, 224, 199, 0.9); }
+    [data-theme="dark"] .collage-note-sign { color: rgba(231, 176, 190, 0.66); }
+    .collage-header {
+      display: flex;
+      align-items: center;
+      gap: clamp(12px, 3vw, 24px);
+      padding: 0 clamp(24px, 6vw, 72px) clamp(20px, 3vw, 36px);
+      position: relative;
+      z-index: 1;
+    }
+    .collage-header-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--rose-mid), transparent);
+    }
+    .collage-header-inner { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .collage-header-star { color: var(--rose); font-size: 1.1rem; }
+    .collage-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      font-style: italic;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.03em;
+      margin: 0;
+    }
+    @keyframes glitter-twinkle {
+      0%, 100% { opacity: 0.9; transform: rotate(var(--rot, 0deg)) scale(1); filter: brightness(1); }
+      50% { opacity: 1; transform: rotate(var(--rot, 0deg)) scale(1.08); filter: brightness(1.16); }
+    }
+    @keyframes sticker-float {
+      0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+      50% { transform: rotate(var(--rot, 0deg)) translateY(-5px); }
+    }
+    @keyframes note-drift {
+      0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+      50% { transform: rotate(var(--rot, 0deg)) translateY(-4px) translateX(2px); }
+    }
+    @keyframes banner-sway {
+      0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+      50% { transform: rotate(calc(var(--rot, 0deg) + 1.4deg)) translateY(2px); }
+    }
+    @keyframes confetti-float {
+      0%, 100% { transform: rotate(var(--rot, 0deg)) translateY(0); }
+      50% { transform: rotate(calc(var(--rot, 0deg) + 8deg)) translateY(-6px); }
+    }
+    @keyframes falling-confetti {
+      0% { transform: translate3d(0, -20px, 0) rotate(var(--rot, 0deg)); opacity: 0; }
+      10% { opacity: 0.82; }
+      100% { transform: translate3d(var(--drift, 20px), 220px, 0) rotate(calc(var(--rot, 0deg) + 420deg)); opacity: 0; }
+    }
+    @keyframes falling-confetti-star {
+      0% { transform: translate3d(0, -20px, 0) rotate(var(--rot, 0deg)) scale(0.92); opacity: 0; }
+      10% { opacity: 0.9; }
+      100% { transform: translate3d(var(--drift, 20px), 220px, 0) rotate(calc(var(--rot, 0deg) + 320deg)) scale(1.12); opacity: 0; }
+    }
+    .collage-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 0 clamp(6px, 1vw, 14px);
+      position: relative;
+      z-index: 1;
+    }
+    .collage-item {
+      position: relative;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background: none;
+      border: none;
+      padding: 0;
+      margin: clamp(5px, 0.8vw, 10px);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+      z-index: 1;
+    }
+    .collage-item:hover, .collage-item:focus-visible {
+      z-index: 20;
+      transform: translateY(-4px) scale(1.035) !important;
+      filter: saturate(1.03);
+      outline: none;
+    }
+    .collage-img-wrap {
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+      background-color: var(--rose-pale);
+    }
+    .collage-sm .collage-img-wrap { width: 196px; height: 196px; }
+    .collage-md .collage-img-wrap { width: 201px; height: 254px; }
+    .collage-lg .collage-img-wrap { width: 246px; height: 315px; }
+    .collage-tape {
+      background: #fff;
+      padding: 8px;
+      border-radius: 2px;
+      box-shadow: 0 10px 24px rgba(196,104,106,0.12);
+    }
+    [data-theme="dark"] .collage-tape {
+      background: #2a2020;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    }
+    .collage-tape-strip {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      width: 54px;
+      height: 19px;
+      background: rgba(255,218,112,0.72);
+      border-radius: 1px;
+      pointer-events: none;
+      z-index: 3;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .collage-hanger { transform-origin: top center; }
+    .collage-hanger:nth-child(5n+1) { animation: swing-a 4.4s ease-in-out infinite; }
+    .collage-hanger:nth-child(5n+2) { animation: swing-b 3.9s ease-in-out infinite; animation-delay: -1.1s; }
+    .collage-hanger:nth-child(5n+3) { animation: swing-c 4.7s ease-in-out infinite; animation-delay: -2.2s; }
+    .collage-hanger:nth-child(5n+4) { animation: swing-d 3.7s ease-in-out infinite; animation-delay: -0.7s; }
+    .collage-hanger:nth-child(5n+5) { animation: swing-e 4.2s ease-in-out infinite; animation-delay: -1.8s; }
+    .collage-hanger:hover { animation-play-state: paused; }
+    .collage-note-card {
+      background: #fffef8;
+      padding: 16px 14px;
+      box-shadow: 0 10px 24px rgba(84,45,47,0.12), 0 2px 5px rgba(0,0,0,0.08);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      font-style: italic;
+      line-height: 1.8;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-image: repeating-linear-gradient(
+        transparent, transparent 27px,
+        rgba(196,104,106,0.2) 27px, rgba(196,104,106,0.2) 28px
+      );
+      background-position: 0 22px;
+    }
+    .collage-sm.collage-note-wrap .collage-note-card { width: 148px; min-height: 148px; }
+    .collage-md.collage-note-wrap .collage-note-card { width: 175px; min-height: 120px; }
+    [data-theme="dark"] .collage-note-card {
+      background-color: #2a2020;
+      background-image: repeating-linear-gradient(
+        transparent, transparent 27px,
+        rgba(196,104,106,0.3) 27px, rgba(196,104,106,0.3) 28px
+      );
+    }
+    .collage-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.28);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .collage-expand-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+    .collage-item:hover .collage-overlay,
+    .collage-item:focus-visible .collage-overlay { opacity: 1; }
+    .collage-item:hover .collage-expand-icon,
+    .collage-item:focus-visible .collage-expand-icon { opacity: 1; }
+
     /* ─── Mobile ─────────────────────────────────────────────────── */
     @media (max-width: 640px) {
       /* Polaroid strip — horizontal scroll so all 5 are reachable */
@@ -732,6 +1306,26 @@
 
       /* Intro nav */
       .intro-nav { flex-wrap: wrap; gap: 12px; }
+
+      .photo-grid-img { width: 130px; height: 130px; }
+      .photo-grid { gap: 12px; padding: 0 12px 32px; }
+
+      .collage-banner { width: min(290px, 86vw); opacity: 0.62; }
+      .collage-banner-flag { width: 18px; height: 28px; font-size: 0.62rem; padding-top: 6px; }
+      .collage-corner-tape { width: 82px; height: 18px; }
+      .collage-sticker { opacity: 0.72; }
+      .collage-sticker-cake { width: 58px; height: 58px; border-radius: 18px; }
+      .collage-sticker-bow { width: 52px; height: 36px; }
+      .collage-sticker-star { font-size: calc(var(--size, 2rem) * 0.82); }
+      .collage-sticker-heart { font-size: calc(var(--size, 2.4rem) * 0.82); }
+      .collage-sticker-text { padding: 8px 12px 9px; font-size: calc(var(--size, 1.1rem) * 0.9); }
+      .collage-note { max-width: 132px; padding: 10px 10px 8px; }
+      .collage-note-text { font-size: 0.9rem; }
+      .collage-falling-piece { opacity: 0.64; }
+      .collage-sm .collage-img-wrap { width: 166px; height: 166px; }
+      .collage-md .collage-img-wrap { width: 169px; height: 214px; }
+      .collage-lg .collage-img-wrap { width: 204px; height: 260px; }
+      .collage-item { margin: 5px; }
     }
 
     /* ─── Homepage ───────────────────────────────────────────────── */
@@ -1149,7 +1743,7 @@
           No pages loaded yet.
         </p>
         <p style={{ marginTop:12, fontSize:'0.85rem', letterSpacing:'0.05em' }}>
-          Add <code>&lt;script src="pages/page-1.js"&gt;&lt;/script&gt;</code> to index.html
+          Add a page script to <code>index.html</code>
           and make sure the server is running.
         </p>
       </div>
@@ -1182,6 +1776,347 @@
         </div>
       </div>
     );
+
+    /* ================================================================
+       PHOTO GRID + COLLAGE / COMPILATION PAGE
+    ================================================================ */
+    const PHOTO_GRID_TILTS = [-3.2, 2.4, -1.8, 3.1, -2.5, 1.6];
+    const COLLAGE_TILTS = [-4.5, 2.8, -2.2, 4.2, -3.4, 1.8, -1.4, 3.6];
+    const COLLAGE_SZ = ['sm', 'md', 'sm', 'lg', 'sm', 'md', 'sm', 'md'];
+    const TAPE_ROTS = [-8, 6, -5, 7, -6, 5, -4, 8];
+
+    const COLLAGE_BANNERS = [
+      { left: '3%', top: '2.5%', rot: '-6deg', dur: '8.5s' },
+      { left: '55%', top: '4.5%', rot: '4deg', dur: '7.8s' },
+      { left: '28%', top: '12%', rot: '5deg', dur: '8.7s' },
+      { left: '72%', top: '14%', rot: '-4deg', dur: '8.4s' },
+      { left: '10%', top: '25%', rot: '-4deg', dur: '9.2s' },
+      { left: '61%', top: '28%', rot: '5deg', dur: '8.2s' },
+      { left: '30%', top: '38%', rot: '-3deg', dur: '8.8s' },
+      { left: '76%', top: '41%', rot: '6deg', dur: '7.9s' },
+      { left: '18%', top: '48%', rot: '3deg', dur: '8.9s' },
+      { left: '63%', top: '52%', rot: '-5deg', dur: '7.7s' },
+      { left: '35%', top: '62%', rot: '4deg', dur: '8.6s' },
+      { left: '74%', top: '66%', rot: '-6deg', dur: '8.2s' },
+      { left: '8%', top: '74%', rot: '-3deg', dur: '9.4s' },
+      { left: '57%', top: '79%', rot: '4deg', dur: '8.1s' },
+      { left: '24%', top: '87%', rot: '-5deg', dur: '8.9s' },
+      { left: '70%', top: '90%', rot: '5deg', dur: '8.3s' },
+    ];
+
+    const COLLAGE_NOTES = [
+      { left: '4%', top: '12%', rot: '-6deg', dur: '8.6s', text: 'birthday scrapbook mode', sign: 'party file' },
+      { left: '80%', top: '18%', rot: '7deg', dur: '9.1s', text: 'tiny snapshots everywhere', sign: 'favorite nights' },
+      { left: '30%', top: '22%', rot: '-4deg', dur: '8.8s', text: 'keep the page loud all the way down', sign: 'design note' },
+      { left: '6%', top: '40%', rot: '-5deg', dur: '8.4s', text: 'the collage/compilation page deserved chaos', sign: 'approved' },
+      { left: '83%', top: '47%', rot: '6deg', dur: '9.6s', text: 'save every good memory', sign: 'keep this one' },
+      { left: '31%', top: '55%', rot: '5deg', dur: '9.1s', text: 'a little more party in the middle too', sign: 'filled out' },
+      { left: '5%', top: '67%', rot: '-7deg', dur: '8.9s', text: 'confetti forever please', sign: 'user note' },
+      { left: '79%', top: '74%', rot: '5deg', dur: '9.3s', text: 'maximum scrapbook energy', sign: 'codex note' },
+      { left: '32%', top: '78%', rot: '-6deg', dur: '8.7s', text: 'every section should feel decorated', sign: 'uniform pass' },
+      { left: '81%', top: '88%', rot: '4deg', dur: '9.5s', text: 'still more glitter somehow', sign: 'bottom section' },
+    ];
+
+    const COLLAGE_STICKERS = [
+      { type: 'cake', left: '6%', top: '7%', rot: '-8deg', size: '82px', dur: '7.2s' },
+      { type: 'star', left: '23%', top: '9%', rot: '12deg', size: '2.6rem', dur: '5.4s', sparkle: '3.6s' },
+      { type: 'star', alt: true, left: '34%', top: '6%', rot: '-10deg', size: '2.2rem', dur: '6.4s', sparkle: '4.1s' },
+      { type: 'heart', left: '46%', top: '9%', rot: '8deg', size: '2.5rem', dur: '6.9s', sparkle: '4.8s' },
+      { type: 'bow', left: '70%', top: '8%', rot: '-8deg', size: '76px', dur: '7.4s' },
+      { type: 'text', left: '80%', top: '10%', rot: '5deg', size: '1.12rem', dur: '8.2s', text: 'happy birthday' },
+      { type: 'star', left: '12%', top: '21%', rot: '-9deg', size: '2rem', dur: '6.2s', sparkle: '4.3s' },
+      { type: 'heart', left: '29%', top: '20%', rot: '10deg', size: '2.2rem', dur: '7s', sparkle: '4.5s' },
+      { type: 'cake', left: '40%', top: '22%', rot: '-7deg', size: '74px', dur: '7.1s' },
+      { type: 'text', left: '63%', top: '20%', rot: '-4deg', size: '1.05rem', dur: '8.6s', text: 'favorite nights' },
+      { type: 'star', alt: true, left: '77%', top: '24%', rot: '11deg', size: '2.35rem', dur: '6.3s', sparkle: '3.8s' },
+      { type: 'bow', left: '89%', top: '27%', rot: '7deg', size: '72px', dur: '7.7s' },
+      { type: 'text', left: '9%', top: '35%', rot: '-5deg', size: '1rem', dur: '8.8s', text: 'party wall' },
+      { type: 'star', left: '22%', top: '39%', rot: '9deg', size: '2.45rem', dur: '5.9s', sparkle: '3.7s' },
+      { type: 'heart', left: '54%', top: '34%', rot: '-8deg', size: '2.3rem', dur: '6.8s', sparkle: '4.6s' },
+      { type: 'cake', left: '71%', top: '38%', rot: '10deg', size: '70px', dur: '7.3s' },
+      { type: 'star', alt: true, left: '86%', top: '41%', rot: '-11deg', size: '2.1rem', dur: '6.1s', sparkle: '4s' },
+      { type: 'heart', left: '11%', top: '46%', rot: '8deg', size: '2.15rem', dur: '6.6s', sparkle: '4.1s' },
+      { type: 'bow', left: '31%', top: '52%', rot: '-6deg', size: '80px', dur: '7.6s' },
+      { type: 'text', left: '58%', top: '50%', rot: '5deg', size: '1.08rem', dur: '8.4s', text: 'more confetti' },
+      { type: 'heart', left: '81%', top: '56%', rot: '7deg', size: '2.4rem', dur: '6.5s', sparkle: '4.4s' },
+      { type: 'star', left: '90%', top: '51%', rot: '-8deg', size: '2.2rem', dur: '6s', sparkle: '3.6s' },
+      { type: 'star', left: '14%', top: '63%', rot: '-10deg', size: '2.3rem', dur: '5.8s', sparkle: '3.9s' },
+      { type: 'cake', left: '43%', top: '66%', rot: '8deg', size: '78px', dur: '7.2s' },
+      { type: 'text', left: '69%', top: '66%', rot: '-6deg', size: '1.02rem', dur: '8.9s', text: 'scrapbook chaos' },
+      { type: 'star', alt: true, left: '88%', top: '69%', rot: '9deg', size: '2.4rem', dur: '6.4s', sparkle: '4.2s' },
+      { type: 'bow', left: '55%', top: '72%', rot: '-7deg', size: '72px', dur: '7.2s' },
+      { type: 'heart', left: '92%', top: '77%', rot: '8deg', size: '2.2rem', dur: '6.7s', sparkle: '4.3s' },
+      { type: 'heart', left: '8%', top: '82%', rot: '-9deg', size: '2.25rem', dur: '6.7s', sparkle: '4.7s' },
+      { type: 'bow', left: '25%', top: '86%', rot: '8deg', size: '74px', dur: '7.5s' },
+      { type: 'text', left: '46%', top: '83%', rot: '-4deg', size: '1.06rem', dur: '8.5s', text: 'best moments' },
+      { type: 'cake', left: '66%', top: '86%', rot: '-7deg', size: '76px', dur: '7.1s' },
+      { type: 'star', left: '83%', top: '88%', rot: '10deg', size: '2.55rem', dur: '5.6s', sparkle: '3.5s' },
+      { type: 'text', left: '10%', top: '92%', rot: '4deg', size: '1rem', dur: '8.7s', text: 'party everywhere' },
+      { type: 'star', alt: true, left: '36%', top: '92%', rot: '-10deg', size: '2.25rem', dur: '6.2s', sparkle: '3.8s' },
+      { type: 'heart', left: '56%', top: '94%', rot: '7deg', size: '2.15rem', dur: '6.9s', sparkle: '4.5s' },
+      { type: 'cake', left: '74%', top: '94%', rot: '-8deg', size: '72px', dur: '7.3s' },
+    ];
+
+    const COLLAGE_CONFETTI = Array.from({ length: 78 }, (_, i) => {
+      const hueCycle = ['#ff95cf', '#c288ff', '#ffd86b', '#ffb3d9', '#f7a4ff'];
+      const type = i % 9 === 0 ? 'star' : i % 4 === 0 ? 'dot' : 'rect';
+      return {
+        type,
+        left: `${(i * 2.3 + (i % 5) * 4.7) % 96}%`,
+        top: `${(i * 7.8 + (i % 7) * 5.2) % 94}%`,
+        rot: `${(i * 19) % 360}deg`,
+        dur: `${6.2 + (i % 6) * 0.55}s`,
+        color: hueCycle[i % hueCycle.length],
+        w: `${type === 'dot' ? 10 + (i % 4) * 2 : 8 + (i % 5) * 2}px`,
+        h: `${type === 'dot' ? 10 + (i % 4) * 2 : 16 + (i % 4) * 3}px`,
+        size: `${0.92 + (i % 4) * 0.16}rem`,
+        sparkle: `${3.5 + (i % 5) * 0.4}s`,
+      };
+    });
+
+    const COLLAGE_FALLING_CONFETTI = Array.from({ length: 220 }, (_, i) => {
+      const palette = ['#ff98cf', '#c58cff', '#ffd975', '#ffb8d8', '#f2a5ff', '#ffc9eb'];
+      const type = i % 11 === 0 ? 'star' : i % 3 === 0 ? 'dot' : 'rect';
+      return {
+        type,
+        left: `${(i * 3.9 + (i % 6) * 1.7) % 100}%`,
+        top: `${(i * 5.2 + (i % 8) * 6.6) % 98}%`,
+        delay: `${-(i % 20) * 0.55}s`,
+        dur: `${4.8 + (i % 7) * 0.45}s`,
+        drift: `${-44 + (i % 11) * 9}px`,
+        rot: `${(i * 23) % 360}deg`,
+        color: palette[i % palette.length],
+        w: `${type === 'dot' ? 8 + (i % 4) * 2 : 8 + (i % 5) * 2}px`,
+        h: `${type === 'dot' ? 8 + (i % 4) * 2 : 14 + (i % 5) * 3}px`,
+        size: `${0.9 + (i % 4) * 0.18}rem`,
+      };
+    });
+
+    const PhotoGrid = ({ photos, onOpen }) => {
+      const open = (e, photo) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        onOpen({ photo, rect });
+      };
+
+      return (
+        <div className="photo-grid">
+          {photos.filter(photo => photo?.src).map((photo, i) => (
+            <button
+              key={photo.src || i}
+              className="photo-grid-card"
+              style={{ transform: `rotate(${PHOTO_GRID_TILTS[i % PHOTO_GRID_TILTS.length]}deg)` }}
+              onClick={e => open(e, photo)}
+              aria-label={`View photo ${i + 1}`}
+            >
+              <img
+                src={photo.src}
+                alt={photo.caption || `memory ${i + 1}`}
+                className="photo-grid-img"
+                style={{ objectPosition: photo.crop || 'center', objectFit: photo.fit || 'cover' }}
+              />
+            </button>
+          ))}
+        </div>
+      );
+    };
+
+    const CollageCornerTapes = () => (
+      <div className="collage-corner-tapes" aria-hidden="true">
+        <div className="collage-corner-tape lt" />
+        <div className="collage-corner-tape rt" />
+        <div className="collage-corner-tape lb" />
+        <div className="collage-corner-tape rb" />
+      </div>
+    );
+
+    const CollageBanners = () => (
+      <div className="collage-banners" aria-hidden="true">
+        {COLLAGE_BANNERS.map((banner, i) => {
+          const letters = 'HAPPYBIRTHDAY'.split('');
+          return (
+            <div
+              key={`banner-${i}`}
+              className="collage-banner"
+              style={{ left: banner.left, top: banner.top, '--rot': banner.rot, '--dur': banner.dur }}
+            >
+              <div className="collage-banner-string" />
+              <div className="collage-banner-flags">
+                {letters.map((letter, j) => (
+                  <span key={`${i}-${j}`} className={`collage-banner-flag${j % 2 ? ' alt' : ''}`}>{letter}</span>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+
+    const CollageNotes = () => (
+      <div className="collage-notes" aria-hidden="true">
+        {COLLAGE_NOTES.map((note, i) => (
+          <div
+            key={`note-${i}`}
+            className="collage-note"
+            style={{ left: note.left, top: note.top, '--rot': note.rot, '--dur': note.dur }}
+          >
+            <div className="collage-note-text">{note.text}</div>
+            <span className="collage-note-sign">{note.sign}</span>
+          </div>
+        ))}
+      </div>
+    );
+
+    const CollageConfetti = () => (
+      <div className="collage-confetti" aria-hidden="true">
+        {COLLAGE_CONFETTI.map((piece, i) => (
+          <span
+            key={`confetti-${i}`}
+            className={`collage-confetti-piece${piece.type === 'dot' ? ' dot' : piece.type === 'star' ? ' star' : ''}`}
+            style={{
+              left: piece.left,
+              top: piece.top,
+              '--rot': piece.rot,
+              '--dur': piece.dur,
+              '--w': piece.w,
+              '--h': piece.h,
+              '--size': piece.size,
+              '--sparkle': piece.sparkle,
+              background: piece.type === 'star' ? undefined : piece.color,
+            }}
+          >
+            {piece.type === 'star' ? '✦' : null}
+          </span>
+        ))}
+      </div>
+    );
+
+    const CollageFallingConfetti = () => (
+      <div className="collage-falling-confetti" aria-hidden="true">
+        {COLLAGE_FALLING_CONFETTI.map((piece, i) => (
+          <span
+            key={`falling-${i}`}
+            className={`collage-falling-piece${piece.type === 'dot' ? ' dot' : piece.type === 'star' ? ' star' : ''}`}
+            style={{
+              left: piece.left,
+              top: piece.top,
+              '--delay': piece.delay,
+              '--dur': piece.dur,
+              '--drift': piece.drift,
+              '--rot': piece.rot,
+              '--w': piece.w,
+              '--h': piece.h,
+              '--size': piece.size,
+              background: piece.type === 'star' ? undefined : piece.color,
+            }}
+          >
+            {piece.type === 'star' ? '✦' : null}
+          </span>
+        ))}
+      </div>
+    );
+
+    const CollageStickers = () => (
+      <div className="collage-stickers" aria-hidden="true">
+        {COLLAGE_STICKERS.map((sticker, i) => (
+          <div
+            key={`sticker-${i}`}
+            className="collage-sticker"
+            style={{
+              left: sticker.left,
+              top: sticker.top,
+              '--rot': sticker.rot,
+              '--dur': sticker.dur,
+              '--size': sticker.size,
+              '--sparkle': sticker.sparkle,
+            }}
+          >
+            {sticker.type === 'star' && <span className={`collage-sticker-star${sticker.alt ? ' alt' : ''}`}>✦</span>}
+            {sticker.type === 'heart' && <span className="collage-sticker-heart">♥</span>}
+            {sticker.type === 'cake' && <span className="collage-sticker-cake" />}
+            {sticker.type === 'text' && <span className="collage-sticker-text">{sticker.text}</span>}
+            {sticker.type === 'bow' && <span className="collage-sticker-bow"><span /></span>}
+          </div>
+        ))}
+      </div>
+    );
+
+    const PhotoCollage = ({ photos, title, onOpen }) => {
+      const open = (e, photo) => {
+        const card = e.currentTarget.querySelector('.collage-tape, .collage-note-card');
+        const rect = (card || e.currentTarget).getBoundingClientRect();
+        onOpen({ photo, rect });
+      };
+
+      return (
+        <section className="collage-canvas">
+          <CollageCornerTapes />
+          <CollageBanners />
+          <CollageConfetti />
+          <CollageFallingConfetti />
+          <CollageNotes />
+          <CollageStickers />
+
+          <div className="collage-header">
+            <div className="collage-header-line" />
+            <div className="collage-header-inner">
+              <span className="collage-header-star">✦</span>
+              <h2 className="collage-title">{title}</h2>
+              <span className="collage-header-star">✦</span>
+            </div>
+            <div className="collage-header-line" />
+          </div>
+
+          <div className="collage-grid">
+            {photos.map((item, i) => {
+              const size = COLLAGE_SZ[i % COLLAGE_SZ.length];
+              const tilt = COLLAGE_TILTS[i % COLLAGE_TILTS.length];
+              const tapeRot = TAPE_ROTS[i % TAPE_ROTS.length];
+
+              if (item.text) {
+                return (
+                  <div
+                    key={`note-card-${i}`}
+                    className={`collage-item collage-${size} collage-note-wrap`}
+                    style={{ transform: `rotate(${tilt}deg)` }}
+                  >
+                    <div className="collage-note-card">{item.text}</div>
+                  </div>
+                );
+              }
+
+              return (
+                <button
+                  key={item.src || i}
+                  className={`collage-item collage-${size}`}
+                  style={{ transform: `rotate(${tilt}deg)` }}
+                  onClick={e => open(e, item)}
+                  aria-label={`View photo ${i + 1}`}
+                >
+                  <div className="collage-tape">
+                    <div className="collage-tape-strip" style={{ transform: `translateX(-50%) rotate(${tapeRot}deg)` }} />
+                    <div
+                      className="collage-img-wrap"
+                      style={{
+                        backgroundImage: `url(${item.src})`,
+                        backgroundPosition: item.crop || 'center',
+                        backgroundSize: item.bgSize || 'cover',
+                      }}
+                    >
+                      <div className="collage-overlay" />
+                      <div className="collage-expand-icon" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      );
+    };
 
     /* ================================================================
        HOMEPAGE
@@ -1469,14 +2404,42 @@
                       />
                     ) : (
                       <>
-                        <PolaroidStrip key={`strip-${shown}`} photos={page.photos} onOpen={setLightbox} />
-                        <main className="main">
-                          <h2 className="page-chapter">{page.title}</h2>
-                          <SpotifyEmbed key={`spotify-${shown}`} page={page} />
-                        </main>
-                        <div className="message-outer">
-                          <MessageCard key={`msg-${shown}`} message={page.message} />
-                        </div>
+                        {page.layout === 'collage' ? (
+                          <PhotoCollage
+                            key={`collage-${shown}`}
+                            photos={page.photos || []}
+                            title={page.title}
+                            onOpen={setLightbox}
+                          />
+                        ) : page.layout === 'grid' ? (
+                          <>
+                            <main className="main">
+                              <h2 className="photo-grid-title">{page.title}</h2>
+                            </main>
+                            <PhotoGrid key={`grid-${shown}`} photos={page.photos || []} onOpen={setLightbox} />
+                            {page.spotifyEmbed && (
+                              <main className="main">
+                                <SpotifyEmbed key={`spotify-${shown}`} page={page} />
+                              </main>
+                            )}
+                            {page.message && (
+                              <div className="message-outer">
+                                <MessageCard key={`msg-${shown}`} message={page.message} />
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <PolaroidStrip key={`strip-${shown}`} photos={page.photos} onOpen={setLightbox} />
+                            <main className="main">
+                              <h2 className="page-chapter">{page.title}</h2>
+                              <SpotifyEmbed key={`spotify-${shown}`} page={page} />
+                            </main>
+                            <div className="message-outer">
+                              <MessageCard key={`msg-${shown}`} message={page.message} />
+                            </div>
+                          </>
+                        )}
                       </>
                     )}
                   </div>
