@@ -39,6 +39,7 @@
   ============================================================ -->
   <script src="pages/pageCollage.js"></script>
   <script src="pages/pageAdnan.js"></script>
+  <script src="pages/page-recap.js"></script>
   <!-- <script src="pages/page-4.js"></script> -->
   <!-- <script src="pages/page-5.js"></script> -->
 
@@ -154,7 +155,7 @@
       justify-content: center;
       align-items: flex-start;
       gap: clamp(10px, 1.4vw, 18px);
-      padding: 0 clamp(16px, 4vw, 60px);
+      padding: 0 max(16px, 3vw);
       flex-wrap: wrap;
     }
 
@@ -415,8 +416,19 @@
       color: var(--text-soft); letter-spacing: 0.04em;
     }
 
-    /* ─── Page transition ────────────────────────────────────────── */
-    .page-fade { transition: opacity 0.32s ease, transform 0.32s ease; }
+    /* ─── Page transitions ──────────────────────────────────────── */
+    .page-transition {
+      transition: opacity 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.34s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    /* Exit states (with transition) */
+    .page-transition.exit-fwd  { opacity: 0; transform: translateX(-36px); }
+    .page-transition.exit-bwd  { opacity: 0; transform: translateX(36px); }
+    .page-transition.exit-jump { opacity: 0; transform: scale(0.97) translateY(10px); }
+    /* Enter start positions — no transition so they snap instantly */
+    .page-transition.enter-fwd  { opacity: 0; transform: translateX(36px);  transition: none; }
+    .page-transition.enter-bwd  { opacity: 0; transform: translateX(-36px); transition: none; }
+    .page-transition.enter-jump { opacity: 0; transform: scale(1.02);       transition: none; }
 
     /* ─── Heart Particles ────────────────────────────────────────── */
     .hearts-layer {
@@ -714,14 +726,13 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: clamp(14px, 2vw, 24px);
-      padding: 0 clamp(20px, 5vw, 60px) clamp(32px, 5vw, 56px);
-      max-width: 1100px;
-      margin: 0 auto;
+      padding: 0 clamp(20px, 3vw, 3vw) clamp(32px, 5vw, 56px);
     }
     .photo-grid-card {
       background: #fff;
       padding: 10px 10px 32px;
       border-radius: 2px;
+      border: none;
       box-shadow: 0 4px 18px rgba(0,0,0,0.13), 0 1.5px 4px rgba(0,0,0,0.08);
       cursor: pointer;
       position: relative;
@@ -1159,9 +1170,7 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: flex-start;
-      max-width: 1380px;
-      margin: 0 auto;
-      padding: 0 clamp(6px, 1vw, 14px);
+      padding: 0 clamp(6px, 1vw, 1vw);
       position: relative;
       z-index: 1;
     }
@@ -1527,21 +1536,38 @@
         return () => window.removeEventListener('keydown', fn);
       }, []);
 
-      // Final size of the enlarged photo — targets 25% larger than the original
-      // constraint, but hard-clamps so the full polaroid card always fits on screen.
       const vw = window.innerWidth;
       const vh = window.innerHeight;
-      const margin   = 28; // minimum gap from any viewport edge
-      const padW     = 28; // card horizontal padding (14px × 2)
-      const padH     = 58; // card vertical padding  (14px top + 44px bottom)
-      const target   = Math.round(Math.min(vw * 0.52, vh * 0.58, 400) * 1.25);
-      const maxByVW  = vw - margin * 2 - padW;
-      const maxByVH  = vh - margin * 2 - padH;
-      const finalImgSize = Math.min(target, maxByVW, maxByVH);
+      const margin = 28; // minimum gap from any viewport edge
 
-      // Full polaroid card width/height (padding: 14px sides, 14px top, 44px bottom)
-      const cardW = finalImgSize + 28;
-      const cardH = finalImgSize + 58;
+      // Collage photos carry _w/_h so we can preserve their aspect ratio.
+      // Regular polaroid photos are square.
+      const hasRatio = photo._w && photo._h;
+      const padW = hasRatio ? 24 : 42; // collage tape: 12px×2 | polaroid: 21px×2
+      const padH = hasRatio ? 24 : 87; // collage tape: 12px×2 | polaroid: 21px+66px
+
+      const maxImgW = vw - margin * 2 - padW;
+      const maxImgH = vh - margin * 2 - padH;
+
+      let finalImgW, finalImgH;
+      if (hasRatio) {
+        const aspect = photo._w / photo._h;
+        const maxW = Math.min(maxImgW, photo._w * 2.8);
+        const maxH = Math.min(maxImgH, photo._h * 2.8);
+        if (maxW / aspect <= maxH) {
+          finalImgW = maxW;
+          finalImgH = Math.round(maxW / aspect);
+        } else {
+          finalImgH = maxH;
+          finalImgW = Math.round(maxH * aspect);
+        }
+      } else {
+        const target = Math.round(Math.min(vw * 0.52, vh * 0.58, 400) * 1.25);
+        finalImgW = finalImgH = Math.min(target, maxImgW, maxImgH);
+      }
+
+      const cardW = finalImgW + padW;
+      const cardH = finalImgH + padH;
 
       // Center of the thumbnail that was clicked
       const fromCx = fromRect.left + fromRect.width  / 2;
@@ -1579,16 +1605,19 @@
             }}
             onClick={e => e.stopPropagation()}
           >
-            <div className="lightbox-polaroid" style={{ width: cardW }}>
+            <div className="lightbox-polaroid" style={{
+              width: cardW,
+              ...(hasRatio ? { padding: '12px' } : { padding: '21px 21px 66px' }),
+            }}>
               <img
                 src={photo.src}
                 alt={photo.caption || 'photo'}
                 className="lightbox-img"
                 style={{
-                  width: finalImgSize,
-                  height: finalImgSize,
+                  width:          finalImgW,
+                  height:         finalImgH,
                   objectPosition: photo.crop || 'center',
-                  objectFit: photo.fit || 'cover',
+                  objectFit:      photo.fit  || 'cover',
                 }}
               />
               {photo.caption && <p className="lightbox-caption">{photo.caption}</p>}
@@ -1783,6 +1812,7 @@
     const PHOTO_GRID_TILTS = [-3.2, 2.4, -1.8, 3.1, -2.5, 1.6];
     const COLLAGE_TILTS = [-4.5, 2.8, -2.2, 4.2, -3.4, 1.8, -1.4, 3.6];
     const COLLAGE_SZ = ['sm', 'md', 'sm', 'lg', 'sm', 'md', 'sm', 'md'];
+    const COLLAGE_PX = { sm: [196, 196], md: [201, 254], lg: [246, 315] };
     const TAPE_ROTS = [-8, 6, -5, 7, -6, 5, -4, 8];
 
     const COLLAGE_BANNERS = [
@@ -1900,19 +1930,20 @@
 
       return (
         <div className="photo-grid">
-          {photos.filter(photo => photo?.src).map((photo, i) => (
+          {photos.map((photo, i) => (
             <button
               key={photo.src || i}
               className="photo-grid-card"
               style={{ transform: `rotate(${PHOTO_GRID_TILTS[i % PHOTO_GRID_TILTS.length]}deg)` }}
-              onClick={e => open(e, photo)}
+              onClick={e => photo.src && open(e, photo)}
               aria-label={`View photo ${i + 1}`}
             >
               <img
-                src={photo.src}
+                src={photo.src || 'https://placehold.co/400x400/F8ECEC/C4686A?text=📸'}
                 alt={photo.caption || `memory ${i + 1}`}
                 className="photo-grid-img"
                 style={{ objectPosition: photo.crop || 'center', objectFit: photo.fit || 'cover' }}
+                onError={e => { e.target.src = 'https://placehold.co/400x400/F8ECEC/C4686A?text=📸'; }}
               />
             </button>
           ))}
@@ -2041,10 +2072,11 @@
     );
 
     const PhotoCollage = ({ photos, title, onOpen }) => {
-      const open = (e, photo) => {
+      const open = (e, photo, size) => {
         const card = e.currentTarget.querySelector('.collage-tape, .collage-note-card');
         const rect = (card || e.currentTarget).getBoundingClientRect();
-        onOpen({ photo, rect });
+        const [_w, _h] = COLLAGE_PX[size] || [196, 196];
+        onOpen({ photo: { ...photo, _w, _h }, rect });
       };
 
       return (
@@ -2089,7 +2121,7 @@
                   key={item.src || i}
                   className={`collage-item collage-${size}`}
                   style={{ transform: `rotate(${tilt}deg)` }}
-                  onClick={e => open(e, item)}
+                  onClick={e => open(e, item, size)}
                   aria-label={`View photo ${i + 1}`}
                 >
                   <div className="collage-tape">
@@ -2132,11 +2164,9 @@
             <h1 className="home-note-name">Thalia</h1>
             <p className="home-note-body">
               Dear Thalia, I hope you've had a great birthday so far.<br />
-              This is a surprise project I've been working on for a little while now.<br />
+              Hopefully this website shows you how much you mean to us.<br />
               <br />
-              The idea of it is a little digital scrapbook of memories, photos<br /> songs, and messages from your friends and I. We all are excited<br />
-              to share this with you! Hopefully it makes you as happy as you make us.<br />
-              To Thalia's friends and family, thank you so much for your help bringing this to life.<br />
+              To Thalia's friends and family, thank you for your help bringing this to life.<br />
               To Thalia, this is for you. Happy Birthday! 🎉<br />
               -Adnan<br />
               <br />
@@ -2202,7 +2232,7 @@
       const [homeExiting, setHomeExiting] = useState(false);
       const [introIdx, setIntroIdx]       = useState(0);
       const [idx, setIdx]                 = useState(0);
-      const [visible, setVisible]         = useState(true);
+      const [txPhase, setTxPhase]          = useState('idle');
       const [shown, setShown]             = useState(0);
       const [dark, setDark]               = useState(false);
       const [menuOpen, setMenuOpen]       = useState(false);
@@ -2217,11 +2247,20 @@
       const isLast = idx === total - 1;
       const page   = pages[shown] || null;
 
-      /* Generic cross-fade: hide → swap state → show */
-      const fade = (fn) => {
+      /* Directional transition: exit → swap state → enter snap → animate to idle
+         dir: 'fwd' | 'bwd' | 'jump' */
+      const navigate = (dir, fn) => {
         window.scrollTo({ top: 0 });
-        setVisible(false);
-        setTimeout(() => { fn(); setVisible(true); }, 300);
+        const exitPhase  = `exit-${dir}`;
+        const enterPhase = `enter-${dir}`;
+        setTxPhase(exitPhase);
+        setTimeout(() => {
+          fn();
+          setTxPhase(enterPhase);                                  // snap to off-screen start
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() => setTxPhase('idle'))        // then animate in
+          );
+        }, 320);
       };
 
       /* ── Navigation ── */
@@ -2229,51 +2268,46 @@
         setHomeExiting(true);
         setTimeout(() => {
           setHomeExiting(false);
+          setTxPhase('idle');
           if (introSections.length > 0) { setPhase('intro'); setIntroIdx(0); }
           else                           { setPhase('scrapbook'); }
         }, 550);
       };
 
-      const goHome = () => fade(() => setPhase('home'));
+      const goHome = () => navigate('bwd', () => setPhase('home'));
 
       const goNextIntro = () => {
-        if (introIdx < introSections.length - 1) fade(() => setIntroIdx(i => i + 1));
-        else                                      fade(() => setPhase('scrapbook'));
+        if (introIdx < introSections.length - 1) navigate('fwd', () => setIntroIdx(i => i + 1));
+        else                                      navigate('fwd', () => setPhase('scrapbook'));
       };
       const goPrevIntro = () => {
-        if (introIdx > 0) fade(() => setIntroIdx(i => i - 1));
-        else              goHome();
+        if (introIdx > 0) navigate('bwd', () => setIntroIdx(i => i - 1));
+        else              navigate('bwd', () => setPhase('home'));
       };
 
       const goTo = (nextIdx) => {
         if (nextIdx < 0 || nextIdx >= total) return;
-        window.scrollTo({ top: 0 });
-        setVisible(false);
-        setTimeout(() => { setIdx(nextIdx); setShown(nextIdx); setVisible(true); }, 300);
+        const dir = nextIdx > idx ? 'fwd' : 'bwd';
+        navigate(dir, () => { setIdx(nextIdx); setShown(nextIdx); });
       };
 
       /* Jump directly to any scrapbook page (used by nav menu) */
       const goToPage = (pageIdx) => {
         setMenuOpen(false);
-        window.scrollTo({ top: 0 });
-        setPhase('scrapbook');
-        setIdx(pageIdx);
-        setShown(pageIdx);
-        setVisible(true);
-        setHomeExiting(false);
+        navigate('jump', () => {
+          setPhase('scrapbook');
+          setIdx(pageIdx);
+          setShown(pageIdx);
+          setHomeExiting(false);
+        });
       };
 
       /* On scrapbook page 1, "Back" goes to last intro (or home) */
       const goScrapbookBack = () => {
         if (introSections.length > 0)
-          fade(() => { setPhase('intro'); setIntroIdx(introSections.length - 1); });
+          navigate('bwd', () => { setPhase('intro'); setIntroIdx(introSections.length - 1); });
         else
-          goHome();
-      };
-
-      const fadeStyle = {
-        opacity:   visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(14px)',
+          navigate('bwd', () => setPhase('home'));
       };
 
       return (
@@ -2317,7 +2351,7 @@
                   {introSections.map((s, i) => (
                     <button key={i}
                       className={`menu-item${phase === 'intro' && introIdx === i ? ' active' : ''}`}
-                      onClick={() => { setMenuOpen(false); fade(() => { setPhase('intro'); setIntroIdx(i); }); }}>
+                      onClick={() => { setMenuOpen(false); navigate('jump', () => { setPhase('intro'); setIntroIdx(i); }); }}>
                       <span className="menu-item-num">{i + 1}</span>
                       <span className="menu-item-label">{s.title || `Intro ${i + 1}`}</span>
                     </button>
@@ -2368,7 +2402,7 @@
 
           {/* ── Intro section ── */}
           {phase === 'intro' && (
-            <div className="page-fade" style={fadeStyle}>
+            <div className={`page-transition ${txPhase}`}>
               <IntroSection
                 section={introSections[introIdx]}
                 onNext={goNextIntro}
@@ -2395,7 +2429,7 @@
 
               {total === 0 ? <EmptyState /> : (
                 <>
-                  <div className="page-fade" style={fadeStyle}>
+                  <div className={`page-transition ${txPhase}`}>
                     {page.password && !unlockedPages.has(shown) ? (
                       <PasswordGate
                         key={`pw-${shown}`}
